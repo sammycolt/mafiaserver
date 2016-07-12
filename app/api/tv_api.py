@@ -4,7 +4,7 @@ from app import app
 from app import utils
 
 @app.route('/api/tv')
-def api_rv():
+def api_tv():
     return "Welcome to API for Apple TV"
 
 @app.route('/api/tv/create_game')

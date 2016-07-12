@@ -16,3 +16,6 @@ class SqlDriver():
     def getGame():
         return GameSession.query.get(session['game_id'])
 
+    @staticmethod
+    def getGameSessionByJoinId(id):
+        pass

@@ -1,5 +1,5 @@
 from app.models.db_models import *
-from flask import jsonify, abort, session
+from flask import jsonify, request
 from app import app
 from app import utils
 
@@ -17,13 +17,15 @@ def create_game():
 
     # print GameSession.query.all()
 
-    session['game_id'] = game.id
+    # session['game_id'] = game.id
 
-    return jsonify({'joinCode': joinCode})
+    return jsonify({'joinCode': joinCode, 'game_id': game.id})
 
 @app.route('/api/tv/get_current_user_list')
 def get_current_user_list():
-    game_id = session['game_id']
+    # game_id = session['game_id']
+
+    game_id = request.args.get('game_id')
     game = GameSession.query.get(game_id)
 
     ids = utils.Json.encode_user_id_list(game.userList)

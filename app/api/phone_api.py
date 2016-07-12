@@ -8,25 +8,29 @@ import json
 def api_phone():
     return "Welcome to API for phones"
 
-@app.route('/api/phone/join_user_to_game', methods=["POST"])
-def join_user_to_game():
-    if not request.args or 'game_id' not in request.args \
+
+@app.route('/api/phone/register_user', methods=["POST"])
+def register_user():
+    if not request.args  \
             or 'name' not in request.args or 'image_url' not in request.args:
         abort(400)
+    newuser = User(request.args.get('name'), request.args.get('image_url'))
+    db.session.add(newuser)
+    db.session.commit()
 
-    if 'user_id' not in session.keys():
-        print "1"
-        newuser = User(request.args.get('name'), request.args.get('image_url'))
-        print newuser.isAlive
-        db.session.add(newuser)
-        print "2"
-        db.session.commit()
+    newuserid = newuser.id
+    return jsonify({"user_id": newuserid})
 
-        session['user_id'] = newuser.id
 
-    newuserid = session['user_id']
+@app.route('/api/phone/join_user_to_game')
+def join_user_to_game():
+    if not request.args or 'join_id' not in request.args\
+            or 'user_id' not in request.args:
+        abort(400)
 
-    join_id = request.args.get('game_id')
+    newuserid = request.args.get('user_id')
+
+    join_id = request.args.get('join_id')
     gameSession = SqlDriver.getGameSessionByJoinId(join_id)
 
     if gameSession == []:

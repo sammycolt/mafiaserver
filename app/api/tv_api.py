@@ -28,12 +28,10 @@ def get_current_user_list():
     game_id = request.args.get('game_id')
     game = GameSession.query.get(game_id)
 
-    print 1
     print game.userList
 
     ids = utils.Json.encode_user_id_list(game.userList)
 
-    print 2
     users = utils.SqlDriver.getUsersByIds(ids)
 
     # print users
@@ -46,11 +44,9 @@ def get_current_user_list():
 @app.route('/api/tv/start_game')
 def start_game():
     utils.SqlDriver.setGameStatus(GameStatus.day)
+
     return jsonify({'result':"success"})
 
-@app.route('/api/tv/get_game')
-def get_game():
-    return utils.SqlDriver.getGame()
 
 @app.route('/api/tv/get_vote/<vote_id>')
 def get_vote(vote_id):

@@ -34,7 +34,7 @@ def join_user_to_game():
     join_id = request.args.get('join_id')
     gameSession = SqlDriver.getGameSessionByJoinId(join_id)
 
-    if gameSession == []:
+    if gameSession == None:
         return jsonify({'result': 'error'})
     else:
         users = json.loads(gameSession.userList)

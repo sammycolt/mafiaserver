@@ -7,10 +7,14 @@ class SqlDriver():
         return db.session.query(User).filter(User.id.in_(ids)).all()
 
     @staticmethod
-    def setGameStatus(gameStatus):
-        game = SqlDriver.getGame()
-        game.gameStatus = gameStatus.value
+    def setGameStatus(game_id, gameStatus):
+        game = SqlDriver.getGameSessionById(game_id)
+        game.gameStatus = gameStatus
         db.session.commit()
+
+    @staticmethod
+    def getGameSessionById(game_id):
+        return GameSession.query.get(game_id)
 
     @staticmethod
     def getGameSessionByJoinId(id):

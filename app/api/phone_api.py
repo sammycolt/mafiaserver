@@ -28,7 +28,7 @@ def join_user_to_game():
             or 'user_id' not in request.args:
         abort(400)
 
-    newuserid = request.args.get('user_id')
+    newuserid = int(request.args.get('user_id'))
 
     join_id = request.args.get('join_id')
     gameSession = SqlDriver.getGameSessionByJoinId(join_id)

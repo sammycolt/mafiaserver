@@ -25,7 +25,7 @@ class User(db.Model):
 class GameSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     joinCode = db.Column(db.Integer)
-    userList = db.Column(db.String(1488), default="[7]")
+    userList = db.Column(db.String(1488), default="[]")
     gameStatus = db.Column(db.Integer)
 
     def genJoinCode(self):

@@ -28,13 +28,20 @@ def get_current_user_list():
     game_id = request.args.get('game_id')
     game = GameSession.query.get(game_id)
 
+    print 1
+    print game.userList
+
     ids = utils.Json.encode_user_id_list(game.userList)
+
+    print 2
     users = utils.SqlDriver.getUsersByIds(ids)
 
-    print users
+    # print users
 
     list = [str(i) for i in users]
-    return jsonify({'users': str(list)})
+
+    print list
+    return jsonify({'users': list})
 
 @app.route('/api/tv/start_game')
 def start_game():

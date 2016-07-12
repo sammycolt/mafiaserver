@@ -31,7 +31,8 @@ def get_current_user_list():
 
     print users
 
-    return jsonify(users)
+    list = [str(i) for i in users]
+    return jsonify({'users': str(list)})
 
 @app.route('/api/tv/start_game')
 def start_game():

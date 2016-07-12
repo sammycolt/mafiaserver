@@ -7,4 +7,5 @@ def clear_data(session):
     session.commit()
 
 # clear_data(session=db.session)
+db.create_all()
 app.run()

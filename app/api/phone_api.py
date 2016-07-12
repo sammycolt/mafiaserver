@@ -111,7 +111,7 @@ def finish_introduction():
 def waiting_for_night():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.night:
+    if game.gameStatus == GameStatus.night.value:
         return SUCCESS()
     else:
         return ERROR()
@@ -121,11 +121,18 @@ def waiting_for_night():
 def waiting_for_day():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.day:
+    if game.gameStatus == GameStatus.day.value:
         return SUCCESS()
     else:
         return ERROR()
 
-
+@app.route('/api/phone/waiting_for_mafia_start_voting')
+def waiting_for_mafia_start_voting():
+    join_id = request.args.get('join_id')
+    game = SqlDriver.getGameSessionByJoinId(join_id)
+    if game.gameStatus == GameStatus.mafia_voting.value:
+        return SUCCESS()
+    else:
+        return ERROR()
 
 

@@ -83,9 +83,14 @@ def start_game():
 
 
 
-@app.route('/api/tv/get_vote/<vote_id>')
-def get_vote(vote_id):
-    pass
+@app.route('/api/tv/get_current_voting')
+def get_vote():
+    join_id = request.args.get('join_id')
+    game = utils.SqlDriver.getGameSessionByJoinId(join_id)
+    voting = utils.SqlDriver.getVotingById(game.currentVoting)
+    v = utils.Json.deparseVoting(voting.dictionary)
+    return jsonify({'voting': v})
+
 
 @app.route('/api/tv/wait_for_voting_end')
 def wait_for_voting_end():
@@ -94,7 +99,8 @@ def wait_for_voting_end():
     voting = utils.SqlDriver.getVotingById(game.currentVoting)
 
 
-    if voting.count == len([i for i in utils.Json.encode_user_id_list(game.userList) if i.isAlive]):
+    if voting.count == len([i for i in utils.SqlDriver.getUsersByIds(utils.Json.encode_user_id_list(game.userList))
+                            if i.isAlive]):
         utils.SqlDriver.setGameStatus(game.id, GameStatus.night)
         newVoting = Voting()
         db.session.add(newVoting)
@@ -113,16 +119,28 @@ def wait_for_mafia_voting_end():
     game = utils.SqlDriver.getGameSessionByJoinId(join_id)
     voting = utils.SqlDriver.getVotingById(game.currentVoting)
 
-    if voting.count == len([i for i in utils.Json.encode_user_id_list(game.userList) if i.isAlive and i.role == "mafia"]):
+    if voting.count == len([i for i in utils.SqlDriver.getUsersByIds(utils.Json.encode_user_id_list(game.userList))
+                                                                     if i.isAlive and i.role == "mafia"]):
         utils.SqlDriver.setGameStatus(game.id, GameStatus.day)
         newVoting = Voting()
         db.session.add(newVoting)
         db.session.commit()
         game.currentVoting = newVoting.id
+        utils.SqlDriver.fillVoting(join_id, True)
 
         db.session.commit()
         return SUCCESS()
     else:
         return ERROR()
+
+@app.route('/api/tv/start_mafia_voting')
+def start_mafia_voting():
+    join_id = request.args.get('join_id')
+    game = utils.SqlDriver.getGameSessionByJoinId(join_id)
+    utils.SqlDriver.setGameStatus(game.id, GameStatus.mafia_voting)
+
+    return SUCCESS()
+
+
 
 

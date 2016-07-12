@@ -35,12 +35,15 @@ class GameSession(db.Model):
         return randint(1000, 9999)
 
     def __init__(self):
-        self.gameStatus = GameStatus.initialization
+        self.gameStatus = GameStatus.initialization.value
         self.joinCode = self.genJoinCode()
 
 class Voting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dictionary = db.Column(db.String, default="[]")
     count = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return self.dictionary
 
 

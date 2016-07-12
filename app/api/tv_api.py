@@ -39,6 +39,12 @@ def get_current_user_list():
 @app.route('/api/tv/start_game')
 def start_game():
     utils.SqlDriver.setGameStatus(GameStatus.day)
-    return "success"
+    return jsonify({'result':"success"})
 
+@app.route('/api/tv/get_game')
+def get_game():
+    return utils.SqlDriver.getGame()
 
+@app.route('/api/tv/get_vote/<vote_id>')
+def get_vote(vote_id):
+    pass

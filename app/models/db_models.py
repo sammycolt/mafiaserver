@@ -21,7 +21,6 @@ class User(db.Model):
         data['is_alive'] = self.isAlive
         data['image_url'] = self.imageUrl
         return json.dumps(data)
-        # return jsonify({'name': self.username, 'is_alive': self.isAlive, 'image_url': self.imageUrl})
 
 class GameSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)

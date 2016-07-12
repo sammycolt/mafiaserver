@@ -1,7 +1,7 @@
 from app import db
 from random import randint
 from app.enums.game_status import GameStatus
-from flask import jsonify
+import json
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,7 +16,12 @@ class User(db.Model):
         self.isAlive = isAlive
 
     def __repr__(self):
-        return jsonify({'name': self.username, 'is_alive': self.isAlive, 'image_url': self.imageUrl}).get_data(as_text=True)
+        data = {}
+        data['name'] = self.username
+        data['is_alive'] = self.isAlive
+        data['image_url'] = self.imageUrl
+        return json.dumps(data)
+        # return jsonify({'name': self.username, 'is_alive': self.isAlive, 'image_url': self.imageUrl})
 
 class GameSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)

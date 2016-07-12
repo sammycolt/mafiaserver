@@ -33,4 +33,9 @@ def get_current_user_list():
 
     return jsonify(users)
 
+@app.route('/api/tv/start_game')
+def start_game():
+    utils.SqlDriver.setGameStatus(GameStatus.day)
+    return "success"
+
 

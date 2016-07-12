@@ -23,3 +23,7 @@ class SqlDriver():
             return list[0]
         else:
             return None
+
+    @staticmethod
+    def getVotingById(id):
+        return Voting.query.get(id)

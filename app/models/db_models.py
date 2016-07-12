@@ -29,6 +29,7 @@ class GameSession(db.Model):
     joinCode = db.Column(db.Integer)
     userList = db.Column(db.String(1488), default="[]")
     gameStatus = db.Column(db.Integer)
+    currentVoting = db.Column(db.Integer, default=0)
 
     def genJoinCode(self):
         return randint(1000, 9999)
@@ -36,4 +37,10 @@ class GameSession(db.Model):
     def __init__(self):
         self.gameStatus = GameStatus.initialization
         self.joinCode = self.genJoinCode()
+
+class Voting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dictionary = db.Column(db.String, default="[]")
+    count = db.Column(db.Integer, default=0)
+
 

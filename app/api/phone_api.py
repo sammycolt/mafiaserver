@@ -5,6 +5,7 @@ from app.utils.SqlDriver import *
 from app.utils import SqlDriver
 from app.utils.Json import *
 import json
+from app.utils.Jsonify import *
 
 @app.route('/api/phone')
 def api_phone():
@@ -43,7 +44,7 @@ def join_user_to_game():
         users.append(newuserid)
         gameSession.userList = str(users)
         db.session.commit()
-        return jsonify({'result': 'success'})
+        return SUCCESS()
 
 @app.route('/api/phone/check_game_status')
 def check_game_status():
@@ -55,9 +56,9 @@ def check_game_status():
 
     if game != None:
         if game.gameStatus != GameStatus.initialization.value:
-            return jsonify({'result': "success"})
+            return SUCCESS()
 
-    return jsonify({'result': "error"})
+    return ERROR()
 
 @app.route('/api/phone/get_role')
 def get_role():
@@ -75,7 +76,7 @@ def get_role():
         if user.id == user_id:
             return jsonify({'result':user.role})
 
-    return jsonify({'result': "error"})
+    return ERROR()
 
 @app.route('/api/phone/get_vote_list')
 def get_vote_list():
@@ -93,5 +94,38 @@ def get_vote_list():
 
     list = [str(i) for i in alive_users]
     return jsonify({'result':list})
+
+@app.route('/api/phone/finish_introduction')
+def finish_introduction():
+    join_id = request.args.get('join_id')
+
+    game = SqlDriver.getGameSessionByJoinId(join_id)
+    voting = SqlDriver.getVotingById(game.currentVoting)
+
+    voting.count += 1
+    db.session.commit()
+
+    return SUCCESS()
+
+@app.route('/api/phone/waiting_for_night')
+def waiting_for_night():
+    join_id = request.args.get('join_id')
+    game = SqlDriver.getGameSessionByJoinId(join_id)
+    if game.gameStatus == GameStatus.night:
+        return SUCCESS()
+    else:
+        return ERROR()
+
+
+@app.route('/api/phone/waiting_for_day')
+def waiting_for_day():
+    join_id = request.args.get('join_id')
+    game = SqlDriver.getGameSessionByJoinId(join_id)
+    if game.gameStatus == GameStatus.day:
+        return SUCCESS()
+    else:
+        return ERROR()
+
+
 
 

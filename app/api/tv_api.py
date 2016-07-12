@@ -3,6 +3,7 @@ from flask import jsonify, request, abort
 from app import app
 from app import utils
 from random import shuffle
+from app.utils.Jsonify import *
 
 @app.route('/api/tv')
 def api_tv():
@@ -52,6 +53,10 @@ def start_game():
 
     utils.SqlDriver.setGameStatus(game_id, GameStatus.day)
 
+    emptyVoting = Voting()
+    db.session.add(emptyVoting)
+    db.session.commit()
+
     jsoned_list = utils.SqlDriver.getGameSessionById(game_id).userList
     nm_of_players = len(json.loads(jsoned_list))
 
@@ -62,6 +67,8 @@ def start_game():
     shuffle(roles)
 
     game = GameSession.query.get(game_id)
+    game.currentVoting = emptyVoting.id
+
     ids = utils.Json.encode_user_id_list(game.userList)
     users = utils.SqlDriver.getUsersByIds(ids)
 
@@ -72,10 +79,50 @@ def start_game():
 
     db.session.commit()
 
-    return jsonify({'result': "success"})
+    return SUCCESS()
 
 
 
 @app.route('/api/tv/get_vote/<vote_id>')
 def get_vote(vote_id):
     pass
+
+@app.route('/api/tv/wait_for_voting_end')
+def wait_for_voting_end():
+    join_id = request.args.get('join_id')
+    game = utils.SqlDriver.getGameSessionByJoinId(join_id)
+    voting = utils.SqlDriver.getVotingById(game.currentVoting)
+
+
+    if voting.count == len([i for i in utils.Json.encode_user_id_list(game.userList) if i.isAlive]):
+        utils.SqlDriver.setGameStatus(game.id, GameStatus.night)
+        newVoting = Voting()
+        db.session.add(newVoting)
+        db.session.commit()
+        game.currentVoting = newVoting.id
+
+        db.session.commit()
+
+        return SUCCESS()
+    else:
+        return ERROR()
+
+@app.route('/api/tv/wait_for_mafia_voting_end')
+def wait_for_mafia_voting_end():
+    join_id = request.args.get('join_id')
+    game = utils.SqlDriver.getGameSessionByJoinId(join_id)
+    voting = utils.SqlDriver.getVotingById(game.currentVoting)
+
+    if voting.count == len([i for i in utils.Json.encode_user_id_list(game.userList) if i.isAlive and i.role == "mafia"]):
+        utils.SqlDriver.setGameStatus(game.id, GameStatus.day)
+        newVoting = Voting()
+        db.session.add(newVoting)
+        db.session.commit()
+        game.currentVoting = newVoting.id
+
+        db.session.commit()
+        return SUCCESS()
+    else:
+        return ERROR()
+
+

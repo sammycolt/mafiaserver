@@ -18,4 +18,8 @@ class SqlDriver():
 
     @staticmethod
     def getGameSessionByJoinId(id):
-        pass
+        list = db.session.query(GameSession).filter(GameSession.joinCode==id).all()
+        if len(list) > 0:
+            return list[0]
+        else:
+            return []

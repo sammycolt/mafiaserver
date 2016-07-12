@@ -15,7 +15,7 @@ def create_game():
     db.session.add(game)
     db.session.commit()
 
-    print GameSession.query.all()
+    # print GameSession.query.all()
 
     session['game_id'] = game.id
 

@@ -2,6 +2,7 @@ from app import app
 from app.models.db_models import *
 from flask import request, abort, jsonify
 from app.utils.SqlDriver import *
+from app.utils import SqlDriver
 from app.utils.Json import *
 import json
 
@@ -58,15 +59,17 @@ def check_game_status():
 
     return jsonify({'result': "error"})
 
-@app.route('api/phone/get_role')
+@app.route('/api/phone/get_role')
 def get_role():
     join_id = request.args.get('join_id')
-    user_id = request.args.get('user_id')
+    user_id = int(request.args.get('user_id'))
 
     game = SqlDriver.getGameSessionByJoinId(join_id)
     ids = Json.encode_user_id_list(game.userList)
 
     users = SqlDriver.getUsersByIds(ids)
+
+    print users
 
     for user in users:
         if user.id == user_id:
@@ -74,10 +77,10 @@ def get_role():
 
     return jsonify({'result': "error"})
 
-@app.route('api/phone/get_vote_list')
+@app.route('/api/phone/get_vote_list')
 def get_vote_list():
     join_id = request.args.get('join_id')
-    user_id = request.args.get('user_id')
+    user_id = int(request.args.get('user_id'))
 
     game = SqlDriver.getGameSessionByJoinId(join_id)
     ids = Json.encode_user_id_list(game.userList)
@@ -85,7 +88,7 @@ def get_vote_list():
 
     alive_users = []
     for user in users:
-        if user.isAlive:
+        if user.isAlive and user.id != user_id:
             alive_users.append(user)
 
     list = [str(i) for i in alive_users]

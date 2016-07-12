@@ -21,6 +21,7 @@ class User(db.Model):
         data['is_alive'] = self.isAlive
         data['image_url'] = self.imageUrl
         data['role'] = self.role
+        data['id'] = self.id
         return json.dumps(data)
 
 class GameSession(db.Model):

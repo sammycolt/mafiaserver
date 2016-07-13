@@ -1,6 +1,7 @@
 from app.models.db_models import *
 from flask import session
 from app.utils.Json import *
+from random import randint
 
 class SqlDriver():
     @staticmethod
@@ -63,13 +64,16 @@ class SqlDriver():
         voting = SqlDriver.getVotingById(game.currentVoting)
         voting_arr = Json.deparseVoting(voting.dictionary)
 
+        print "old voting"
         print voting_arr
         for user in voting_arr:
             if target_id in user.keys():
                 user[target_id].append(user_id)
 
+
+        print "new voting"
         print voting_arr
-        print str(voting_arr)
+
         voting.dictionary = str(voting_arr)
         voting.count += 1
         db.session.commit()
@@ -78,18 +82,30 @@ class SqlDriver():
     def kill(join_id):
         game = SqlDriver.getGameSessionByJoinId(join_id)
         voting = SqlDriver.getVotingById(game.currentVoting)
+        print voting.dictionary
         voting_ar = Json.deparseVoting(voting.dictionary)
 
+        print "kill:"
+        print voting_ar
+
         maxLen = 0
-        resultVote = None
 
         for voteOb in voting_ar:
-            l = len(voteOb.values())
+            l = len(voteOb[voteOb.keys()[0]])
             if l > maxLen:
                 maxLen = l
-                resultVote = voteOb
 
-        user_id = voteOb.keys()[0]
+        result = []
+        for voteOb in voting_ar:
+            l = len(voteOb[voteOb.keys()[0]])
+            if l == maxLen:
+                result.append(voteOb)
+
+        print "result:"
+        print result
+        resultVote = result[randint(0, len(result) - 1)]
+
+        user_id = resultVote.keys()[0]
         user = SqlDriver.getUsersByIds([user_id])[0]
 
         user.isAlive = False

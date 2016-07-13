@@ -103,32 +103,35 @@ def wait_for_voting_end():
     if voting.count >= len([i for i in utils.SqlDriver.getUsersByIds(utils.Json.encode_user_id_list(game.userList))
                             if i.isAlive]):
         old_status = game.gameStatus
-        print "old: "
-        print old_status
         new_status = GameStatus.night
+
+        print "-------------------------------------"
+        print old_status
+        print GameStatus.introduction.value
+        print "-------------------------------------"
+
         if old_status == GameStatus.introduction.value:
             new_status = GameStatus.night_introduction
 
-        print "new:"
-        print new_status
+            utils.SqlDriver.setGameStatus(game.id, new_status)
+            newVoting = Voting()
+            db.session.add(newVoting)
+            db.session.commit()
+            game.currentVoting = newVoting.id
 
-        utils.SqlDriver.setGameStatus(game.id, new_status)
-        newVoting = Voting()
-        db.session.add(newVoting)
-        db.session.commit()
-        game.currentVoting = newVoting.id
+            db.session.commit()
 
-        db.session.commit()
+            return SUCCESS()
 
-        if old_status != GameStatus.introduction.value:
+        else:
             killed = utils.SqlDriver.kill(join_id)
             winner = ""
             users = utils.SqlDriver.getUsers(join_id)
-            alive_citizens = [i for i in users if i.isAlive and i.role == "citizen"]
+            alive_citizens = [i for i in users if i.isAlive and i.role == "civilian"]
             alive_mafia = [i for i in users if i.isAlive and i.role == "mafia"]
 
             if len(alive_mafia) == 0:
-                winner = "citizens"
+                winner = "civilians"
             else:
                 if len(alive_mafia) > len(alive_citizens):
                     winner = "mafia"
@@ -136,9 +139,17 @@ def wait_for_voting_end():
             if winner != "":
                 utils.SqlDriver.setGameStatus(game.id, GameStatus.finished)
 
-            return jsonify({"result": "success", "killed": killed.id, "winner" : winner})
+            else:
+                utils.SqlDriver.setGameStatus(game.id, new_status)
+                newVoting = Voting()
+                db.session.add(newVoting)
+                db.session.commit()
+                game.currentVoting = newVoting.id
 
-        return SUCCESS()
+                db.session.commit()
+
+            return jsonify({"result": "success", "killed": killed.id, "winner": winner})
+
     else:
         return ERROR()
 
@@ -154,6 +165,32 @@ def wait_for_mafia_voting_end():
         print "old: "
         print old_status
 
+        if old_status != GameStatus.night_introduction.value:
+            killed = utils.SqlDriver.kill(join_id)
+            winner = ""
+            users = utils.SqlDriver.getUsers(join_id)
+            alive_citizens = [i for i in users if i.isAlive and i.role == "civilian"]
+            alive_mafia =  [ i for i in users if i.isAlive and i.role == "mafia"]
+
+            if len(alive_mafia) == 0:
+                winner = "civilians"
+            else:
+                if len(alive_mafia) > len(alive_citizens):
+                    winner = "mafia"
+
+            if winner != "":
+                utils.SqlDriver.setGameStatus(game.id, GameStatus.finished)
+            else:
+                utils.SqlDriver.setGameStatus(game.id, GameStatus.day)
+                newVoting = Voting()
+                db.session.add(newVoting)
+                db.session.commit()
+                game.currentVoting = newVoting.id
+                utils.SqlDriver.fillVoting(join_id, True)
+                db.session.commit()
+
+            return jsonify({"result": "success", "killed": killed.id, "winner" : winner})
+
         utils.SqlDriver.setGameStatus(game.id, GameStatus.day)
         newVoting = Voting()
         db.session.add(newVoting)
@@ -161,24 +198,6 @@ def wait_for_mafia_voting_end():
         game.currentVoting = newVoting.id
         utils.SqlDriver.fillVoting(join_id, True)
         db.session.commit()
-
-        if old_status != GameStatus.night_introduction.value:
-            killed = utils.SqlDriver.kill(join_id)
-            winner = ""
-            users = utils.SqlDriver.getUsers(join_id)
-            alive_citizens = [i for i in users if i.isAlive and i.role == "citizen"]
-            alive_mafia =  [ i for i in users if i.isAlive and i.role == "mafia"]
-
-            if len(alive_mafia) == 0:
-                winner = "citizens"
-            else:
-                if len(alive_mafia) > len(alive_citizens):
-                    winner = "mafia"
-
-            if winner != "":
-                utils.SqlDriver.setGameStatus(game.id, GameStatus.finished)
-
-            return jsonify({"result": "success", "killed": killed.id, "winner" : winner})
 
         return SUCCESS()
     else:
@@ -189,8 +208,8 @@ def start_mafia_voting():
     join_id = request.args.get('join_id')
     game = utils.SqlDriver.getGameSessionByJoinId(join_id)
     print game.gameStatus
-    if (game.gameStatus != GameStatus.night_introduction.value):
-        utils.SqlDriver.setGameStatus(game.id, GameStatus.mafia_voting)
+    if (game.gameStatus != GameStatus.night or game.gameStatus != GameStatus.night_introduction.value):
+        utils.SqlDriver.fillVoting(join_id, False)
 
     return SUCCESS()
 
@@ -219,7 +238,7 @@ def start_first_day():
 
     game = GameSession.query.get(game_id)
     game.currentVoting = emptyVoting.id
-    
+
     utils.SqlDriver.fillVoting(game.joinCode, True)
 
     ids = utils.Json.encode_user_id_list(game.userList)

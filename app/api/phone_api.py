@@ -12,7 +12,7 @@ def api_phone():
     return "Welcome to API for phones"
 
 
-@app.route('/api/phone/register_user', methods=["POST"])
+@app.route('/api/phone/register_user')
 def register_user():
     if not request.args  \
             or 'name' not in request.args or 'image_url' not in request.args:
@@ -122,7 +122,8 @@ def finish_introduction():
 def waiting_for_night():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.night.value:
+    if game.gameStatus == GameStatus.night.value or \
+                    game.gameStatus == GameStatus.night_introduction.value:
         return SUCCESS()
     else:
         return ERROR()
@@ -141,7 +142,9 @@ def waiting_for_day():
 def waiting_for_mafia_start_voting():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.mafia_voting.value:
+    voting = SqlDriver.getVotingById(game.currentVoting)
+
+    if voting.dictionary != "[]":
         return SUCCESS()
     else:
         return ERROR()

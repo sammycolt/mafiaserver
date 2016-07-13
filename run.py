@@ -6,6 +6,6 @@ def clear_data(session):
         session.execute(table.delete())
     session.commit()
 
-# clear_data(session=db.session)
+#clear_data(session=db.session)
 db.create_all()
 app.run()

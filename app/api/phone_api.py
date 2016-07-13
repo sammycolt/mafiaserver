@@ -81,7 +81,13 @@ def get_role():
 @app.route('/api/phone/get_vote_list')
 def get_vote_list():
     join_id = request.args.get('join_id')
+    print join_id
     user_id = int(request.args.get('user_id'))
+    is_for_mafia_list = False
+    if request.args.get('is_for_mafia_list') == "true":
+        is_for_mafia_list = True
+
+    print is_for_mafia_list
 
     game = SqlDriver.getGameSessionByJoinId(join_id)
     ids = Json.encode_user_id_list(game.userList)
@@ -90,9 +96,14 @@ def get_vote_list():
     alive_users = []
     for user in users:
         if user.isAlive and user.id != user_id:
-            alive_users.append(user)
+            if is_for_mafia_list:
+                if user.role != 'mafia':
+                    alive_users.append(user)
+            else:
+                print user.id
+                alive_users.append(user)
 
-    list = [str(i) for i in alive_users]
+    list = [json.loads(str(i)) for i in alive_users]
     return jsonify({'result':list})
 
 @app.route('/api/phone/finish_introduction')
@@ -135,4 +146,16 @@ def waiting_for_mafia_start_voting():
     else:
         return ERROR()
 
+@app.route('/api/phone/vote_for_user_by_id')
+def vote_for_user_by_id():
+    join_id = request.args.get('join_id')
+    user_id = int(request.args.get('user_id'))
+    targer_user = int(request.args.get('target_user'))
 
+    SqlDriver.addUserToVoting(join_id, user_id, targer_user)
+
+    return SUCCESS()
+
+@app.route('/api/phone/is_finished')
+def is_finished():
+    join_id = request.args.get('join_id')

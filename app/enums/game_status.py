@@ -6,3 +6,5 @@ class GameStatus(Enum):
     mafia_voting = 3
     introduction = 4
     initialization = 5
+    night_introduction = 6
+    finished = 7

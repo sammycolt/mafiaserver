@@ -8,6 +8,7 @@ class Json():
 
     @staticmethod
     def deparseVoting(a):
+        print a
         b = list(a[1:-2].replace(' ', '').split('},'))
         ans = []
         for i in b:
@@ -18,6 +19,6 @@ class Json():
                 users = []
             else:
                 users = [int(i) for i in users]
-            dict[user] = users
+            dict[int(user)] = users
             ans.append(dict)
         return ans

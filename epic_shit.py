@@ -505,7 +505,7 @@ def wait_for_voting_end():
             if len(alive_mafia) == 0:
                 winner = "civilians"
             else:
-                if len(alive_mafia) > len(alive_citizens):
+                if len(alive_mafia) >= len(alive_citizens):
                     winner = "mafia"
 
             if winner != "":
@@ -547,7 +547,7 @@ def wait_for_mafia_voting_end():
             if len(alive_mafia) == 0:
                 winner = "civilians"
             else:
-                if len(alive_mafia) > len(alive_citizens):
+                if len(alive_mafia) >= len(alive_citizens):
                     winner = "mafia"
 
             if winner != "":

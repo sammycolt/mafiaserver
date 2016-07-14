@@ -55,7 +55,7 @@ def check_game_status():
     game = SqlDriver.getGameSessionByJoinId(join_id)
 
     if game != None:
-        if game.gameStatus != GameStatus.initialization.value:
+        if game.gameStatus != GameStatus.initialization:
             return SUCCESS()
 
     return ERROR()
@@ -74,7 +74,7 @@ def get_role():
 
     for user in users:
         if user.id == user_id:
-            return jsonify({'result':user.role})
+            return jsonify({'result' : user.role})
 
     return ERROR()
 
@@ -122,8 +122,8 @@ def finish_introduction():
 def waiting_for_night():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.night.value or \
-                    game.gameStatus == GameStatus.night_introduction.value:
+    if game.gameStatus == GameStatus.night or \
+                    game.gameStatus == GameStatus.night_introduction:
         return SUCCESS()
     else:
         return ERROR()
@@ -133,7 +133,7 @@ def waiting_for_night():
 def waiting_for_day():
     join_id = request.args.get('join_id')
     game = SqlDriver.getGameSessionByJoinId(join_id)
-    if game.gameStatus == GameStatus.day.value:
+    if game.gameStatus == GameStatus.day:
         return SUCCESS()
     else:
         return ERROR()

@@ -16,7 +16,7 @@ class SqlDriver():
     @staticmethod
     def setGameStatus(game_id, gameStatus):
         game = SqlDriver.getGameSessionById(game_id)
-        game.gameStatus = gameStatus.value
+        game.gameStatus = gameStatus
         db.session.commit()
 
     @staticmethod
@@ -117,5 +117,5 @@ class SqlDriver():
     @staticmethod
     def isFinished(join_id):
         game = SqlDriver.getGameSessionByJoinId(join_id)
-        return game.gameStatus == GameStatus.finished.value
+        return game.gameStatus == GameStatus.finished
 

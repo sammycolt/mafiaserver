@@ -107,10 +107,10 @@ def wait_for_voting_end():
 
         print "-------------------------------------"
         print old_status
-        print GameStatus.introduction.value
+        print GameStatus.introduction
         print "-------------------------------------"
 
-        if old_status == GameStatus.introduction.value:
+        if old_status == GameStatus.introduction:
             new_status = GameStatus.night_introduction
 
             utils.SqlDriver.setGameStatus(game.id, new_status)
@@ -133,7 +133,7 @@ def wait_for_voting_end():
             if len(alive_mafia) == 0:
                 winner = "civilians"
             else:
-                if len(alive_mafia) > len(alive_citizens):
+                if len(alive_mafia) >= len(alive_citizens):
                     winner = "mafia"
 
             if winner != "":
@@ -165,17 +165,17 @@ def wait_for_mafia_voting_end():
         print "old: "
         print old_status
 
-        if old_status != GameStatus.night_introduction.value:
+        if old_status != GameStatus.night_introduction:
             killed = utils.SqlDriver.kill(join_id)
             winner = ""
             users = utils.SqlDriver.getUsers(join_id)
             alive_citizens = [i for i in users if i.isAlive and i.role == "civilian"]
-            alive_mafia =  [ i for i in users if i.isAlive and i.role == "mafia"]
+            alive_mafia =  [i for i in users if i.isAlive and i.role == "mafia"]
 
             if len(alive_mafia) == 0:
                 winner = "civilians"
             else:
-                if len(alive_mafia) > len(alive_citizens):
+                if len(alive_mafia) >= len(alive_citizens):
                     winner = "mafia"
 
             if winner != "":
@@ -208,7 +208,7 @@ def start_mafia_voting():
     join_id = request.args.get('join_id')
     game = utils.SqlDriver.getGameSessionByJoinId(join_id)
     print game.gameStatus
-    if (game.gameStatus != GameStatus.night or game.gameStatus != GameStatus.night_introduction.value):
+    if (game.gameStatus != GameStatus.night or game.gameStatus != GameStatus.night_introduction):
         utils.SqlDriver.fillVoting(join_id, False)
 
     return SUCCESS()

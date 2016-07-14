@@ -35,7 +35,7 @@ class GameSession(db.Model):
         return randint(1000, 9999)
 
     def __init__(self):
-        self.gameStatus = GameStatus.initialization.value
+        self.gameStatus = GameStatus.initialization
         self.joinCode = self.genJoinCode()
 
 class Voting(db.Model):
